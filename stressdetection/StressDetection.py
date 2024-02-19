@@ -1,3 +1,4 @@
+
 import dlib
 import time
 import numpy as np
@@ -26,21 +27,17 @@ class Stress:
         self.fps = 0
         self.stress = 0
         self.frame_num = 0
+        self.fps = 0
+        self.fps_buffer = 10
+        self.fps_last_time = time.time()
+        
         
     def get_faces(self, image):
         return self.detector(image, 0)
 
-    def get_first_face(self, image):
-        rect = None
-        rects =self.get_faces(image)
-        if len(rects) > 0:
-            rect = rects[0]
-        return rect
-
+    
     def process_frame(self, base64_str):
-        self.frame_num += 1
-        
-        t0 = time.time()
+        print("hi")
         # Convert base64 string to image
         decoded_img = base64.b64decode(base64_str)
         img = Image.open(BytesIO(decoded_img))
@@ -52,12 +49,19 @@ class Stress:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         rects = self.detector(gray, 0)
         landmarks_list = []
-        fps_buffer=10
-        
         self.frame_num += 1
-        if self.frame_num % fps_buffer == 0:
-            self.fps = fps_buffer/(time.time()-t0)
-            t0 = time.time()
+
+        # Calculate fps
+        if self.frame_num % self.fps_buffer == 0:
+            current_time = time.time()
+            elapsed_time = current_time - self.fps_last_time
+            self.fps = self.fps_buffer / elapsed_time
+            self.fps_last_time = current_time
+        
+        # self.frame_num += 1
+        # if self.frame_num % fps_buffer == 0:
+        #     self.fps = fps_buffer/(time.time()-t0)
+        #     t0 = time.time()
 
         for rect in rects:
             shape = self.predictor(gray, rect)
@@ -65,7 +69,7 @@ class Stress:
             landmarks_list.append(shape)
 
             # Get forehead region
-            forehead, _, _ = self.get_forehead(frame, shape)
+            forehead, forehead_p1, forehead_p2 = self.get_forehead(frame, shape)
             self.forehead = forehead
 
         # Return processed frame and landmarks

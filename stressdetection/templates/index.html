@@ -14,8 +14,8 @@
 </head>
 <body>
 <video id="videoCanvas" autoplay playsinline></video>
-<div id="stressLevel">Stress Level: Loading...</div> <!-- Initial message -->
-<div id="status">Status: Connecting...</div> <!-- Connection status message -->
+<div id="stressLevel">Stress Level: Loading...</div> 
+<div id="status">Status: Connecting...</div> 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
 <script>
@@ -64,7 +64,9 @@
         ctx.drawImage(videoCanvas, 0, 0, canvas.width, canvas.height);
         const base64_str = canvas.toDataURL('image/jpeg').split(',')[1]; // Convert captured frame to base64 string
         console.log(base64_str)
+        
         socket.emit('frame_data', { base64_str }); // Send base64 string to backend
+        
     }
 
     // Call init() to start accessing webcam
@@ -72,4 +74,5 @@
 </script>
 </body>
 </html>
+
 

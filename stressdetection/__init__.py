@@ -16,12 +16,15 @@ stress_obj = Stress()
 
 @socketio.on('frame_data')
 def handle_frame_data(data):
+    print("hi")
     base64_str = data['base64_str']
     # print(base64_str)
     # Process the frame to extract facial landmarks
     frame, landmarks_list = stress_obj.process_frame(base64_str)
+    # print(landmarks_list)
     
     for landmarks in landmarks_list:
+        
         # Calculate stress level using the processed frame and landmarks
         stress_level = stress_obj.get_stress_info(base64_str)
         # Emit the stress level back to the frontend
