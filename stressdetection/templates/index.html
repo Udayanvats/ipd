@@ -35,7 +35,7 @@
     socket.on('stress_update', function(data) {
         console.log('Received stress update:', data); // Log received data
         // Update stress level on the webpage
-        document.getElementById('stressLevel').innerText = 'Stress Level: ' + data.stress_level.toFixed(2) + '%';
+        document.getElementById('stressLevel').innerText = 'Stress Level: ' + data?.stress_level?.toFixed(2) + '%';
     });
 
     // Access webcam and render feed onto canvas
@@ -45,6 +45,7 @@
     };
 
     async function init() {
+        console.log("init ")
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             videoCanvas.srcObject = stream;
@@ -55,12 +56,14 @@
     }
 
     async function captureFrame() {
+        console.log("cap")
         const canvas = document.createElement('canvas');
         canvas.width = videoCanvas.videoWidth;
         canvas.height = videoCanvas.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(videoCanvas, 0, 0, canvas.width, canvas.height);
         const base64_str = canvas.toDataURL('image/jpeg').split(',')[1]; // Convert captured frame to base64 string
+        console.log(base64_str)
         socket.emit('frame_data', { base64_str }); // Send base64 string to backend
     }
 

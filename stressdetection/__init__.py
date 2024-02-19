@@ -17,12 +17,13 @@ stress_obj = Stress()
 @socketio.on('frame_data')
 def handle_frame_data(data):
     base64_str = data['base64_str']
+    # print(base64_str)
     # Process the frame to extract facial landmarks
     frame, landmarks_list = stress_obj.process_frame(base64_str)
     
     for landmarks in landmarks_list:
         # Calculate stress level using the processed frame and landmarks
-        stress_level = stress_obj.get_stress_info(frame, landmarks)
+        stress_level = stress_obj.get_stress_info(base64_str)
         # Emit the stress level back to the frontend
         emit('stress_update', {'stress_level': stress_level}, namespace='/')
 
@@ -30,9 +31,10 @@ def handle_frame_data(data):
 
 def gen():
     while True:
+        print("hi")
         _, data = cv2.imencode('.jpg', frame)  # Assuming 'frame' contains the video frame received from the frontend
         base64_str = base64.b64encode(data).decode('utf-8')
-        stress_level = stress_obj.get_stress_info(base64_str)
+        stress_level = stress_obj.get_stress_info(base64_str,)
         socketio.emit("stress_update", {"stress_level": stress_level}, namespace="/")
         yield b'--frame\r\nContent-Type: application/json\r\n\r\n' + json.dumps({'stress_level': 0}).encode() + b'\r\n'
 
